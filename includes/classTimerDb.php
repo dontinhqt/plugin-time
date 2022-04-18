@@ -43,67 +43,66 @@ class TimerDb
         if (!empty($wpdb->charset)) {
             $charset_collate = "DEFAULT CHARACTER SET {$wpdb->charset}";
         }
-
         if (!empty($wpdb->collate)) {
             $charset_collate .= " COLLATE {$wpdb->collate}";
         }
 
-        $sql = "CREATE TABLE IF NOT EXISTS $table (
-			id int(9) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-			ip varchar(50) NOT NULL,
-			pw_code text NOT NULL,
-            page_id int(10),
-            attempt int(1),
-            lock tinyint(1),
-			time datetime DEFAULT '0000-00-00 00:00:00' NOT NULL
-		) $charset_collate;";
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-        dbDelta($sql);
-    }
-
-    public static function updateTable()
-    {
-        $table = self::$table;
-        $row = self::$wpdb->get_row("SELECT * FROM $table");
-        if (!isset($row->message2)) {
-            $sql = "ALTER TABLE $table ADD message2 text NOT NULL";
-            self::$wpdb->query($sql);
-        }
-
-    }
-
-    public static function checkUpdate()
-    {
-        $version = get_option('shoutboxVersion');
-        if ($version && $version != SHOUTBOX_VERSION) {
-            QHShoutboxMessage::updateTable();
-            add_option('shoutboxVersion', SHOUTBOX_VERSION);
+        if ($tableName === TIMER_TABLE_LOCK) {
+            $sql = "CREATE TABLE IF NOT EXISTS $table (
+                id int(9) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                ip varchar(50) NOT NULL,
+                pw_code text NOT NULL,
+                page_id int(10),
+                attempt int(1),
+                blocked tinyint(1) DEFAULT 0,
+                created_at datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
+                updated_at datetime DEFAULT '0000-00-00 00:00:00' NOT NULL
+		    ) $charset_collate;";
+            dbDelta($sql);
         }
     }
 
-    public static function dropTable()
+    public static function dropTable($tableName)
     {
-        $table = self::$table;
-        $sql = "DROP TABLE IF EXISTS $table";
-        self::$wpdb->query($sql);
+        $table = self::$table . $tableName;
+        self::$wpdb->query("DROP TABLE IF EXISTS $table");
     }
 
-    public static function save($message, $user_login = 'Guest')
+    public static function insert($tableName, $data)
     {
-        self::$wpdb->insert(self::$table, array(
-            'user_login' => $user_login,
-            'message' => $message,
-            'time' => current_time('mysql')
-        ));
-        return true;
+        return self::$wpdb->insert(self::$table . $tableName, $data);
     }
 
-    public static function get($dataType = 'OBJECT')
+    public static function get($tableName, $where, $dataType = 'OBJECT')
     {
-        $table = self::$table;
-        $message = self::$wpdb->get_results("
-			SELECT * FROM $table ORDER BY id ASC
-		", $dataType);
-        return $message;
+        $table = self::$table . $tableName;
+        $sql = "SELECT * FROM $table";
+        if (!empty($where)) {
+            $sql .= " WHERE $where";
+        }
+        return self::$wpdb->get_row($sql, $dataType);
+    }
+
+    public static function update($tableName, $data, $where)
+    {
+        $table = self::$table . $tableName;
+        return self::$wpdb->update($table, $data, $where);
+    }
+
+    public static function delete($tableName, $data)
+    {
+        $table = self::$table . $tableName;
+        return self::$wpdb->delete($table, $data);
+    }
+
+    public static function getDataPagination($tableName, $postPerPage = 10, $page = 1, $output = "ARRAY_A")
+    {
+        $table = self::$table . $tableName;
+        $offset = ($page * $postPerPage) - $postPerPage;
+        return [
+            'total' => self::$wpdb->get_var("SELECT COUNT(id) FROM (SELECT (id) FROM $table) AS a"),
+            'results' => self::$wpdb->get_results("SELECT * FROM $table LIMIT $postPerPage OFFSET $offset", $output)
+        ];
     }
 }
