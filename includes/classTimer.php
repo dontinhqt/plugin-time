@@ -29,10 +29,10 @@ class Timer
         if (!get_option('timer-setting-option')) {
             add_option('timer-setting-option', [
                 'allowed-number-attempts' => 3,
-                'time-remove-lock-ip' => 15 //mins
+                'time-remove-lock-ip' => 15, //mins
+                'check-type-expire-password' => 'expired_date'
             ]);
         }
-
     }
 
     public static function pluginDeactivation() {

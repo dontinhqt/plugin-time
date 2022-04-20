@@ -20,6 +20,12 @@ class TimerSetting {
     {
         $instance = self::getInstance();
         self::$option = get_option('timer-setting-option');
+
+        add_action('admin_enqueue_scripts', function() {
+            wp_register_style('bootstrap-css','https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css');
+            wp_enqueue_style( 'bootstrap-css' );
+        });
+
         add_action('admin_menu', function () use ($instance) {
             add_menu_page('Timer Setting', 'Timer Config', 'manage_options', 'timer-setting-url', [$instance, 'timerCreateSettingPage']);
 
@@ -27,6 +33,7 @@ class TimerSetting {
         });
 
         add_action('admin_init', [$instance, 'timerSetupSetting']);
+
 
         return $instance;
     }
@@ -44,17 +51,29 @@ class TimerSetting {
     {
         register_setting('timerSettingGroup', 'timer-setting-option', [self::$instance, 'timerSaveDataSetting']);
 
-        add_settings_section('timerSettingLock', 'Tổng quan', function () {
+        add_settings_section('timerSettingLock', '', function () {
             echo '<h1>Setting block</h1>';
         }, 'timer-setting-url');
 
         add_settings_field('timerAllowedNumberAttempts', 'Allowed number attempts', function () {
-            printf('<input name="timer-setting-option[allowed-number-attempts]" type="number" step="1" min="1" id="allowed-number-attempts" value="%d" class="small-text">', isset(self::$option['allowed-number-attempts']) ? esc_attr(self::$option['allowed-number-attempts']) : 3);
+            printf('<input name="timer-setting-option[allowed-number-attempts]" type="number" step="1" min="0" id="allowed-number-attempts" value="%d" class="small-text">', isset(self::$option['allowed-number-attempts']) ? esc_attr(self::$option['allowed-number-attempts']) : 3);
         }, 'timer-setting-url', 'timerSettingLock');
 
         add_settings_field('timerRemoveLockIp', 'Time remove lock IP', function () {
             printf('<input name="timer-setting-option[time-remove-lock-ip]" type="number" step="1" min="1" id="time-remove-lock-ip" value="%d" class="small-text">', isset(self::$option['time-remove-lock-ip']) ? esc_attr(self::$option['time-remove-lock-ip']) : 15);
         }, 'timer-setting-url', 'timerSettingLock');
+
+        add_settings_section('timerSettingExpiredPassword', '', function () {
+            echo '<h1>Setting expired date</h1>';
+        }, 'timer-setting-url');
+
+        add_settings_field('timerCheckExpirePassword', 'Check expire password', function () {
+            $selected = isset(self::$option['check-type-expire-password']) ? esc_attr(self::$option['check-type-expire-password']) : 'expired_date';
+            echo '<select name="timer-setting-option[check-type-expire-password]" id="check-type-expire-password">
+                <option value="cookie" ' . ($selected == "cookie" ? "selected" : "") . '>Cookie Expiration Time Setting</option>
+                <option value="expired_date" ' . ($selected == "expired_date" ? "selected" : "") . '>Expired date</option>
+            </select>';
+        }, 'timer-setting-url', 'timerSettingExpiredPassword');
     }
 
     public static function timerSaveDataSetting($input)
@@ -67,6 +86,7 @@ class TimerSetting {
         if (isset($input['time-remove-lock-ip'])) {
             $newInput['time-remove-lock-ip'] = absint($input['time-remove-lock-ip']);
         }
+        $newInput['check-type-expire-password'] = $input['check-type-expire-password'];
         return $newInput;
     }
 }

@@ -17,3 +17,22 @@ function getClientIp() {
 
     return $ipaddress;
 }
+
+function getMinusFromSettingCookie($time, $unitsTimes) {
+    $minus = 0;
+    switch ($unitsTimes) {
+        case 'days':
+            $minus = $time * 24 * 60;
+        break;
+        case 'hours':
+            $minus = $time * 60;
+            break;
+        case 'minutes':
+            $minus = $time;
+            break;
+        case 'seconds':
+            $minus = ceil($time / 60);
+            break;
+    }
+    return $minus;
+}
