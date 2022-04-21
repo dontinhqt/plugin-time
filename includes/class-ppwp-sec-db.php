@@ -3,7 +3,7 @@ if ( ! defined( 'WPINC' ) ) {
     die;
 }
 
-class TimerDb
+class PPWP_SEC_DB
 {
     protected static $instance;
     protected static $wpdb;
@@ -21,7 +21,7 @@ class TimerDb
     public static function getInstance()
     {
         if (self::$instance === null) {
-            self::$instance = new TimerDb();
+            self::$instance = new PPWP_SEC_DB();
         }
         return self::$instance;
     }
@@ -31,7 +31,7 @@ class TimerDb
         $instance = self::getInstance();
         global $wpdb;
         self::$wpdb = $wpdb;
-        self::$table = self::$wpdb->prefix . 'timer_';
+        self::$table = self::$wpdb->prefix . 'ppwp_sec_';
 
         return $instance;
     }
@@ -48,7 +48,7 @@ class TimerDb
         }
 
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-        if ($tableName === TIMER_TABLE_LOCK) {
+        if ($tableName === PPWP_SEC_TABLE_LOCK) {
             $sql = "CREATE TABLE IF NOT EXISTS $table (
                 id int(9) NOT NULL AUTO_INCREMENT PRIMARY KEY,
                 ip varchar(50) NOT NULL,

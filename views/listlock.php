@@ -1,11 +1,11 @@
 <?php
     $page = isset($_GET['cpage']) ? abs((int)$_GET['cpage']) : 1;
     $postPerPage = 2;
-    $data = TimerDb::getDataPagination(TIMER_TABLE_LOCK, $postPerPage, $page);
+    $data = PPWP_SEC_DB::getDataPagination(PPWP_SEC_TABLE_LOCK, $postPerPage, $page);
 
     if ($_POST) {
-        $result = TimerDb::update(
-            TIMER_TABLE_LOCK,
+        $result = PPWP_SEC_DB::update(
+            PPWP_SEC_TABLE_LOCK,
             [
                 'attempt' => $_POST['attempt'],
                 'blocked' => !empty($_POST['blocked']) ? 1 : 0
@@ -15,10 +15,10 @@
     }
     if (!empty($_GET['action']) && $_GET['action'] === "edit" && !empty($_GET['id'])) {
         $id = $_GET['id'];
-        $lockIpById = TimerDb::get(TIMER_TABLE_LOCK, "id = $id", 'ARRAY_A');
+        $lockIpById = PPWP_SEC_DB::get(PPWP_SEC_TABLE_LOCK, "id = $id", 'ARRAY_A');
     }
     if (!empty($_GET['action']) && $_GET['action'] === "delete" && !empty($_GET['id'])) {
-        if(TimerDb::delete(TIMER_TABLE_LOCK, ["id" => $_GET['id']])) {
+        if(PPWP_SEC_DB::delete(PPWP_SEC_TABLE_LOCK, ["id" => $_GET['id']])) {
             echo "<script>location.replace('admin.php?page=timer-setting-block');</script>";
         }
     }

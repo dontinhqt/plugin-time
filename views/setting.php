@@ -4,11 +4,6 @@
         <?php
             settings_fields('timerSettingGroup');
             do_settings_sections('timer-setting-url');
-
-
-
-
-
             submit_button();
         ?>
     </form>
