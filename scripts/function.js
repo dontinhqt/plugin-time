@@ -17,9 +17,8 @@ function startTimer(duration, display, running = true) {
 
 jQuery(function ($) {
     var display = $('#countdown-timer');
-    var timeClock = jQuery('.ymese-countdown-timer').data('time_expired');
+    var timeClock = jQuery('.ppwp-sec-countdown').data('time_expired');
     if (timeClock) {
-        var minutes = 60 * timeClock;
-        startTimer(minutes, display);
+        startTimer(timeClock, display);
     }
 });

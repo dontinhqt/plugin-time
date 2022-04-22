@@ -36,3 +36,16 @@ function getMinusFromSettingCookie($time, $unitsTimes) {
     }
     return $minus;
 }
+
+function getSecondsFromSettingCookie($time, $unitsTimes) {
+    switch ($unitsTimes) {
+        case 'days':
+            return $time * 24 * 60 * 60;
+        case 'hours':
+            return $time * 60 * 60;
+        case 'minutes':
+            return $time * 60;
+        case 'seconds':
+            return $time;
+    }
+}

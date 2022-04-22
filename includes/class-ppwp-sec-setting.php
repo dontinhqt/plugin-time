@@ -41,15 +41,10 @@ class PPWP_SEC_SETTING {
         });
 
         add_action('admin_menu', function () use ($instance) {
-//            add_menu_page('Timer Setting', 'Timer Config', 'manage_options', 'timer-setting-url', [$instance, 'timerCreateSettingPage']);
-//
-//            add_submenu_page( 'timer-setting-url', 'IP Block', 'IP Block', 'manage_options', 'timer-setting-block', [$instance, 'timerListLockIpPage']);
-
             add_submenu_page( PPW_Constants::MENU_NAME, 'Security', 'Security', 'manage_options', PPWP_SEC_MENU_SLUG, [$instance, 'ppwp_sec_render_ui']);
         });
 
         add_action('admin_init', [$instance, 'timerSetupSetting']);
-
 
         return $instance;
     }
@@ -79,6 +74,11 @@ class PPWP_SEC_SETTING {
             printf('<input name="ppwp-sec-setting[time-remove-lock-ip]" type="number" step="1" min="1" id="time-remove-lock-ip" value="%d" class="small-text">', isset(self::$option['time-remove-lock-ip']) ? esc_attr(self::$option['time-remove-lock-ip']) : 15);
         }, 'timer-setting-url', 'timerSettingLock');
 
+        add_settings_field('timerBlockCustomMessage', 'Custom block message', function () {
+            printf('<p style="color: #5f6973">sample custom message block user enter password after {time} minus</p>');
+            printf('<textarea style="min-width: 400px;" name="ppwp-sec-setting[custom-message-block]" type="text" id="custom-message-block">%s</textarea>', isset(self::$option['custom-message-block']) ? esc_attr(self::$option['custom-message-block']) : "");
+        }, 'timer-setting-url', 'timerSettingLock');
+
         add_settings_section('timerSettingExpiredPassword', '', function () {
             echo '<h1>Setting expired date</h1>';
         }, 'timer-setting-url');
@@ -94,7 +94,7 @@ class PPWP_SEC_SETTING {
 
     public static function timerSaveDataSetting($input)
     {
-        $newInput = [];
+        $newInput = $input;
         if (isset($input['allowed-number-attempts'])) {
             $newInput['allowed-number-attempts'] = absint($input['allowed-number-attempts']);
         }
@@ -102,7 +102,6 @@ class PPWP_SEC_SETTING {
         if (isset($input['time-remove-lock-ip'])) {
             $newInput['time-remove-lock-ip'] = absint($input['time-remove-lock-ip']);
         }
-        $newInput['check-type-expire-password'] = $input['check-type-expire-password'];
         return $newInput;
     }
 

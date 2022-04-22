@@ -50,6 +50,9 @@ class PPWP_SEC_LOCK
                     return $content;
                 }
                 if ($ipInfoLock['blocked'] && $ipInfoLock['attempt'] >= $ppwp_sec_setting['allowed-number-attempts']) {
+                    if (!empty($ppwp_sec_setting['custom-message-block'])) {
+                        return '<p>' . esc_html(str_replace('{time}', $ppwp_sec_setting['time-remove-lock-ip'], $ppwp_sec_setting['custom-message-block'])) . '</p>';
+                    }
                     return "<p style='color: red'>You have been blocked for entering the wrong password many times</p>
                             <p>Please try again after " . ceil($ppwp_sec_setting['time-remove-lock-ip'] - $lastEnterPass) . " minutes</p>";
                 }
@@ -61,10 +64,20 @@ class PPWP_SEC_LOCK
                 || ($ppwp_sec_setting['check-type-expire-password'] == PPWP_SEC_EXPIRE_PASSWORD_BY_COOKIE))
         ) {
             $settingCookieExpired = explode(' ', PPWP_SEC_WPP_PASSWORD_COOKIE_EXPIRED);
+//            $timeExpired = $ppwp_sec_setting['check-type-expire-password'] == PPWP_SEC_EXPIRE_PASSWORD_BY_DATE
+//                ? (int)round(abs($passwords->expired_date - time()) / 60)
+//                : getMinusFromSettingCookie($settingCookieExpired[0], $settingCookieExpired[1]);
+
+            $statsRepo = PDA_Stats_PPW_Repository::get_instance();
+            $data = $statsRepo->get_latest_single_password($passwords->password, $post->ID);
+            dd($data);
+            $data = PPWP_SEC_DB::get(PDA_Stats_Constants::PDA_PPW_TABLE, "'post_id' = $post->ID AND 'password' = $passwords->password");
+            dd($data);
+
             $timeExpired = $ppwp_sec_setting['check-type-expire-password'] == PPWP_SEC_EXPIRE_PASSWORD_BY_DATE
-                ? (int)round(abs($passwords->expired_date - time()) / 60)
-                : getMinusFromSettingCookie($settingCookieExpired[0], $settingCookieExpired[1]);
-            return '<div class="ymese-countdown-timer" data-time_expired="' . $timeExpired . '">
+                ? (int)round(abs($passwords->expired_date - time()))
+                : getSecondsFromSettingCookie($settingCookieExpired[0], $settingCookieExpired[1]);
+            return '<div class="ppwp-sec-countdown" data-time_expired="' . $timeExpired . '">
                             <div id="countdown-timer"></div>
                         </div>'
                 . $content;
