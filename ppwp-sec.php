@@ -23,9 +23,12 @@ define('PPWP_SEC_TIME_REMOVE_LOCK_IP', 15); // mins
 define('PPWP_SEC_CHECK_TYPE_EXPIRE_PASSWORD', 'expired_date');
 define('PPWP_SEC_EXPIRE_PASSWORD_BY_DATE', 'expired_date');
 define('PPWP_SEC_EXPIRE_PASSWORD_BY_COOKIE', 'cookie');
-if (defined( 'PPW_PRO_VERSION' )) {
-    define('PPWP_SEC_WPP_PASSWORD_COOKIE_EXPIRED', (!empty($ppwp = json_decode(get_option(PPW_Constants::GENERAL_OPTIONS))) && !empty($ppwp->wpp_password_cookie_expired)) ? $ppwp->wpp_password_cookie_expired : null);
-}
+
+
+define('PPWP_SEC_MENU_SLUG', 'ppwp_sec_security');
+
+define('PPWP_SEC_WPP_PASSWORD_COOKIE_EXPIRED', (!empty($ppwp = json_decode(get_option(PPW_Constants::GENERAL_OPTIONS))) && !empty($ppwp->wpp_password_cookie_expired)) ? $ppwp->wpp_password_cookie_expired : null);
+
 
 require_once(PPWP_SEC_PLUGIN_DIR . 'includes/helper.php');
 require_once(PPWP_SEC_PLUGIN_DIR . 'includes/class-ppwp-sec-db.php');

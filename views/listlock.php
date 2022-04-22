@@ -1,9 +1,11 @@
 <?php
-    $page = isset($_GET['cpage']) ? abs((int)$_GET['cpage']) : 1;
+    $cpage = isset($_GET['cpage']) ? abs((int)$_GET['cpage']) : 1;
+    $page = isset($_GET['page']) ? $_GET['page'] : PPWP_SEC_MENU_SLUG;
+    $tab = isset($_GET['tab']) ? $_GET['tab'] : 'ppwp_sec_block';
     $postPerPage = 2;
-    $data = PPWP_SEC_DB::getDataPagination(PPWP_SEC_TABLE_LOCK, $postPerPage, $page);
+    $data = PPWP_SEC_DB::getDataPagination(PPWP_SEC_TABLE_LOCK, $postPerPage, $cpage);
 
-    if ($_POST) {
+    if (!empty($_POST)) {
         $result = PPWP_SEC_DB::update(
             PPWP_SEC_TABLE_LOCK,
             [
@@ -12,6 +14,7 @@
             ],
             ['id' => $_POST['id']]
         );
+        wp_redirect(admin_url() . 'admin.php?page=' . $page . '&tab=' . $tab . '&cpage=' . $cpage);
     }
     if (!empty($_GET['action']) && $_GET['action'] === "edit" && !empty($_GET['id'])) {
         $id = $_GET['id'];
@@ -19,7 +22,7 @@
     }
     if (!empty($_GET['action']) && $_GET['action'] === "delete" && !empty($_GET['id'])) {
         if(PPWP_SEC_DB::delete(PPWP_SEC_TABLE_LOCK, ["id" => $_GET['id']])) {
-            echo "<script>location.replace('admin.php?page=timer-setting-block');</script>";
+            wp_redirect(admin_url() . 'admin.php?page=' . $page . '&tab=' . $tab);
         }
     }
 ?>
@@ -56,7 +59,9 @@
             <td><?= $row['page_id'] ?></td>
             <td><?= $row['attempt'] ?></td>
             <td><?= $row['blocked'] == true ? "true" : "false" ?></td>
-            <td><a href="?page=timer-setting-block&action=edit&id=<?= $row['id'] ?>">Edit</a> | <a href="?page=timer-setting-block&action=delete&id=<?= $row['id'] ?>">Delete</a></td>
+
+            <td><a href="?<?= http_build_query(['page' => $page, 'tab' => $tab, 'cpage' => $cpage, 'action' => 'edit', 'id' => $row['id']]) ?>">Edit</a> |
+                <a href="?<?= http_build_query(['page' => $page, 'tab' => $tab, 'cpage' => $cpage, 'action' => 'delete', 'id' => $row['id']]) ?> ?>">Delete</a></td>
         </tr>
         <?php } ?>
     </tbody>
@@ -68,7 +73,7 @@
         'prev_text' => __('&laquo;'),
         'next_text' => __('&raquo;'),
         'total' => ceil($data['total'] / $postPerPage),
-        'current' => $page,
+        'current' => $cpage,
         'type' => 'list'
     ));
     echo '</div>';

@@ -49,7 +49,7 @@ class PPWP_SEC_LOCK
                     PPWP_SEC_DB::delete(PPWP_SEC_TABLE_LOCK, ['ip' => $ip]);
                     return $content;
                 }
-                if ($ipInfoLock['attempt'] >= $ppwp_sec_setting['allowed-number-attempts']) {
+                if ($ipInfoLock['blocked'] && $ipInfoLock['attempt'] >= $ppwp_sec_setting['allowed-number-attempts']) {
                     return "<p style='color: red'>You have been blocked for entering the wrong password many times</p>
                             <p>Please try again after " . ceil($ppwp_sec_setting['time-remove-lock-ip'] - $lastEnterPass) . " minutes</p>";
                 }
@@ -64,7 +64,6 @@ class PPWP_SEC_LOCK
             $timeExpired = $ppwp_sec_setting['check-type-expire-password'] == PPWP_SEC_EXPIRE_PASSWORD_BY_DATE
                 ? (int)round(abs($passwords->expired_date - time()) / 60)
                 : getMinusFromSettingCookie($settingCookieExpired[0], $settingCookieExpired[1]);
-
             return '<div class="ymese-countdown-timer" data-time_expired="' . $timeExpired . '">
                             <div id="countdown-timer"></div>
                         </div>'

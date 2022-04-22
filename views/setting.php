@@ -1,5 +1,4 @@
 <div class="wrap">
-    <h2>Timer Settings</h2>
     <form method="post" action="options.php">
         <?php
             settings_fields('timerSettingGroup');

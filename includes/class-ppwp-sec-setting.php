@@ -3,6 +3,7 @@
 class PPWP_SEC_SETTING {
     protected static $instance;
     protected static $option;
+    protected static $tabs;
 
     protected function __construct() {}
 
@@ -20,19 +21,31 @@ class PPWP_SEC_SETTING {
     {
         $instance = self::getInstance();
         self::$option = get_option('ppwp-sec-setting');
+        self::$tabs = [
+            [
+                'tab'      => 'ppwp_sec_setting',
+                'tab_name' => 'Security settings',
+            ],
+            [
+                'tab'      => 'ppwp_sec_block',
+                'tab_name' => 'Security settings block',
+            ],
+        ];
 
         add_action('admin_enqueue_scripts', function($hook) {
-            if (!strpos($hook, 'timer-setting')) {
+            if (!strpos($hook, 'ppwp_sec')) {
                 return;
             }
             wp_register_style('bootstrap-css','https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css');
-            wp_enqueue_style( 'bootstrap-css' );
+            wp_enqueue_style('bootstrap-css');
         });
 
         add_action('admin_menu', function () use ($instance) {
-            add_menu_page('Timer Setting', 'Timer Config', 'manage_options', 'timer-setting-url', [$instance, 'timerCreateSettingPage']);
+//            add_menu_page('Timer Setting', 'Timer Config', 'manage_options', 'timer-setting-url', [$instance, 'timerCreateSettingPage']);
+//
+//            add_submenu_page( 'timer-setting-url', 'IP Block', 'IP Block', 'manage_options', 'timer-setting-block', [$instance, 'timerListLockIpPage']);
 
-            add_submenu_page( 'timer-setting-url', 'IP Block', 'IP Block', 'manage_options', 'timer-setting-block', [$instance, 'timerListLockIpPage']);
+            add_submenu_page( PPW_Constants::MENU_NAME, 'Security', 'Security', 'manage_options', PPWP_SEC_MENU_SLUG, [$instance, 'ppwp_sec_render_ui']);
         });
 
         add_action('admin_init', [$instance, 'timerSetupSetting']);
@@ -91,5 +104,42 @@ class PPWP_SEC_SETTING {
         }
         $newInput['check-type-expire-password'] = $input['check-type-expire-password'];
         return $newInput;
+    }
+
+    public function ppwp_sec_render_ui() {
+        ?>
+        <div class="wrap">
+            <h2><?php echo "Security settings" ?></h2>
+            <?php
+            $default_tab = 'ppwp_sec_setting';
+            $active_tab  = isset( $_GET['tab'] ) ? $_GET['tab'] : $default_tab;
+            $this->ppwp_sec_render_tabs($active_tab);
+            $this->ppwp_sec_render_content($active_tab);
+            ?>
+        </div>
+        <?php
+    }
+
+    public function ppwp_sec_render_tabs($active_tab) {
+        ?>
+        <h2 class="ppwp_wrap_tab_title nav-tab-wrapper">
+            <?php
+            foreach ( self::$tabs as $tab ) {
+                $link = '?page=' . PPWP_SEC_MENU_SLUG . '&tab=' . esc_attr($tab['tab']);
+                ?>
+                <a href="<?php echo $link; ?>"
+                   class="nav-tab <?php echo $active_tab === $tab['tab'] ? 'nav-tab-active' : ''; ?>"><?php echo $tab['tab_name']; ?></a>
+            <?php } ?>
+        </h2>
+        <?php
+    }
+
+    public function ppwp_sec_render_content($active_tab) {
+        if ($active_tab == 'ppwp_sec_setting') {
+            self::timerCreateSettingPage();
+        }
+        if ($active_tab == 'ppwp_sec_block') {
+            self::timerListLockIpPage();
+        }
     }
 }
