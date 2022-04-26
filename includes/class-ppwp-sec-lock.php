@@ -49,7 +49,7 @@ class PPWP_SEC_LOCK
                     PPWP_SEC_DB::delete(PPWP_SEC_TABLE_LOCK, ['ip' => $ip]);
                     return $content;
                 }
-                if ($ipInfoLock['blocked'] && $ipInfoLock['attempt'] >= $ppwp_sec_setting['allowed-number-attempts']) {
+                if ($ipInfoLock['blocked'] || $ipInfoLock['attempt'] >= $ppwp_sec_setting['allowed-number-attempts']) {
                     if (!empty($ppwp_sec_setting['custom-message-block'])) {
                         return '<p>' . esc_html(str_replace('{time}', $ppwp_sec_setting['time-remove-lock-ip'], $ppwp_sec_setting['custom-message-block'])) . '</p>';
                     }

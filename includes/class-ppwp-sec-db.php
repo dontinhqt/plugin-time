@@ -96,6 +96,12 @@ class PPWP_SEC_DB
         return self::$wpdb->delete($table, $data);
     }
 
+    public static function truncate($tableName)
+    {
+        $table = self::$table . $tableName;
+        return self::$wpdb->query("TRUNCATE TABLE `$table`");
+    }
+
     public static function getDataPagination($tableName, $postPerPage = 10, $page = 1, $output = "ARRAY_A")
     {
         $table = self::$table . $tableName;
