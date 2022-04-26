@@ -34,6 +34,7 @@ require_once(PPWP_SEC_PLUGIN_DIR . 'includes/helper.php');
 require_once(PPWP_SEC_PLUGIN_DIR . 'includes/class-ppwp-sec-db.php');
 require_once(PPWP_SEC_PLUGIN_DIR . 'includes/class-ppwp-sec-lock.php');
 require_once(PPWP_SEC_PLUGIN_DIR . 'includes/class-ppwp-sec-setting.php');
+require_once(PPWP_SEC_PLUGIN_DIR . 'includes/class-ppwp-sec-api.php');
 require_once(PPWP_SEC_PLUGIN_DIR . 'includes/class-ppwp-sec.php');
 
 function activate_ppwp_sec() {

@@ -38,7 +38,7 @@ class PPWP_SEC_LOCK
 
     public static function handleWhenShowPage($content)
     {
-        global $post, $passwords;
+        global $post, $ppwp_passwords;
         $ip = getClientIp();
         $ppwp_sec_setting = get_option('ppwp-sec-setting');
         if (!empty($ip) && !empty($ppwp_sec_setting['allowed-number-attempts'])) {
@@ -59,13 +59,13 @@ class PPWP_SEC_LOCK
             }
         }
 
-        if (!empty($passwords)
-            && (($ppwp_sec_setting['check-type-expire-password'] == PPWP_SEC_EXPIRE_PASSWORD_BY_DATE && time() < $passwords->expired_date)
+        if (!empty($ppwp_passwords)
+            && (($ppwp_sec_setting['check-type-expire-password'] == PPWP_SEC_EXPIRE_PASSWORD_BY_DATE && time() < $ppwp_passwords->expired_date)
                 || ($ppwp_sec_setting['check-type-expire-password'] == PPWP_SEC_EXPIRE_PASSWORD_BY_COOKIE))
         ) {
             $settingCookieExpired = explode(' ', PPWP_SEC_WPP_PASSWORD_COOKIE_EXPIRED);
             $timeExpired = $ppwp_sec_setting['check-type-expire-password'] == PPWP_SEC_EXPIRE_PASSWORD_BY_DATE
-                ? (int)round(abs($passwords->expired_date - time()))
+                ? (int)round(abs($ppwp_passwords->expired_date - time()))
                 : getSecondsFromSettingCookie($settingCookieExpired[0], $settingCookieExpired[1]);
             return '<div class="ppwp-sec-countdown" data-time_expired="' . $timeExpired . '">
                             <div id="countdown-timer"></div>

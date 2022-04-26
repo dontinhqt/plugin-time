@@ -21,6 +21,8 @@ class PPWP_SEC
         PPWP_SEC_DB::run();
         PPWP_SEC_SETTING::run();
 
+        PPWP_SEC_API::run();
+
         return $instance;
     }
 
