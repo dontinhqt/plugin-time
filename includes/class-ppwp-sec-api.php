@@ -29,16 +29,49 @@ class PPWP_SEC_API {
 
     public function register_rest_routes()
     {
-        register_rest_route('ppwp-sec', '/panigate-list-block', [
+        register_rest_route('ppwp-sec', '/list-block', [
             'methods' => 'GET',
-            'callback' => [self::$instance, 'panigate_list_block'],
+            'callback' => [self::$instance, 'list_block'],
+            'permission_callback' => function () {
+                return current_user_can( 'edit_posts' );
+            },
+        ]);
+
+        register_rest_route( 'ppwp-sec', '/update-block', [
+            'methods'  => 'POST',
+            'callback' => [self::$instance, 'update_block'],
+            'permission_callback' => function () {
+                return current_user_can( 'edit_posts' );
+            },
+        ]);
+
+        register_rest_route( 'ppwp-sec', '/delete-block', [
+            'methods'  => 'POST',
+            'callback' => [self::$instance, 'delete_block'],
             'permission_callback' => function () {
                 return current_user_can( 'edit_posts' );
             },
         ]);
     }
 
-    public function panigate_list_block($data) {
+    public function list_block($data) {
         return PPWP_SEC_DB::getDataPagination(PPWP_SEC_TABLE_LOCK, empty($data['post_per_page']) ? 10 : $data['post_per_page'], empty($data['cpage']) ? 1 : $data['cpage']);
+    }
+
+    public function update_block($data) {
+        PPWP_SEC_DB::update(
+            PPWP_SEC_TABLE_LOCK,
+            [
+                'attempt' => $data['attempt'],
+                'blocked' => !empty($data['blocked']) ? 1 : 0
+            ],
+            ['id' => $data['id']]
+        );
+        return true;
+    }
+
+    public function delete_block($data) {
+        return PPWP_SEC_DB::delete(PPWP_SEC_TABLE_LOCK, ["id" => $data['id']]);
+
     }
 }

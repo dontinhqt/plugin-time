@@ -99,10 +99,11 @@ class PPWP_SEC_DB
     public static function getDataPagination($tableName, $postPerPage = 10, $page = 1, $output = "ARRAY_A")
     {
         $table = self::$table . $tableName;
+        $postTable = self::$wpdb->prefix.'posts';
         $offset = ($page * $postPerPage) - $postPerPage;
         return [
             'total' => self::$wpdb->get_var("SELECT COUNT(id) FROM (SELECT (id) FROM $table) AS a"),
-            'results' => self::$wpdb->get_results("SELECT * FROM $table LIMIT $postPerPage OFFSET $offset", $output)
+            'results' => self::$wpdb->get_results("SELECT $table.*, $postTable.post_title FROM $table LEFT JOIN wp_posts ON $table.page_id = $postTable.id LIMIT $postPerPage OFFSET $offset", $output)
         ];
     }
 }
